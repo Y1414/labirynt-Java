@@ -3,7 +3,10 @@ import Coordinates_pack.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayDeque;
+import java.util.NoSuchElementException;
 
 public class MazeFrame extends JFrame implements ActionListener{
     JPanel mazePanel;
@@ -19,8 +22,8 @@ public class MazeFrame extends JFrame implements ActionListener{
         setSize(width,height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        this.setVisible(true);
-        this.setLocationRelativeTo(null);
+        setVisible(true);
+        setLocationRelativeTo(null);
         
         buttonsPanel = new JPanel(new FlowLayout());
         buttonsPanel.setBackground(Color.gray);
@@ -34,14 +37,75 @@ public class MazeFrame extends JFrame implements ActionListener{
 
         mazePanel = new JPanel(new GridLayout(maze.getHeight(), maze.getWidth()));
         add(mazePanel, BorderLayout.CENTER);
-        
+
         for (int row = 0; row < maze.getHeight(); row++) {
             for (int col = 0; col < maze.getWidth(); col++) {
                 JLabel label = makeLabel(maze.getChar(new Coordinates(col, row)));
+                final int labelX = col;
+                final int labelY = row;
+
+                label.addMouseListener(new MouseListener() {
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                    
+                        
+                    }
+        
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+        
+                    }
+        
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        //System.out.println("Kliknięto na pole: (" + labelX + ", " + labelY + ")");
+                        Coordinates clickCoordinates = new Coordinates(labelX, labelY);
+                        if (maze.getStart() == null && maze.getChar(clickCoordinates) != 'K'){
+                            changeLabelColor(labelX, labelY, Color.green, maze.getWidth());
+                            maze.changeChar(new Coordinates(labelX, labelY), 'P');
+                            maze.setStart(clickCoordinates);
+                        }
+                        else if (maze.getEnd() == null && maze.getChar(clickCoordinates) != 'P'){
+                            changeLabelColor(labelX, labelY, Color.red, maze.getWidth());
+                            maze.changeChar(new Coordinates(labelX, labelY), 'K');
+                            maze.setEnd(clickCoordinates);
+                        }
+
+
+                        else if (maze.getChar(clickCoordinates) == ' '){
+                            changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
+                            maze.changeChar(new Coordinates(labelX, labelY), 'X');
+                        }else if (maze.getChar(clickCoordinates) == 'X'){
+                            changeLabelColor(labelX, labelY, Color.white, maze.getWidth());
+                            maze.changeChar(new Coordinates(labelX, labelY), ' ');
+                        }else if (maze.getChar(clickCoordinates) == 'P'){
+                            changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
+                            maze.changeChar(new Coordinates(labelX, labelY), 'X');
+                            maze.setStart(null);
+                        }else if (maze.getChar(clickCoordinates) == 'K'){
+                            changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
+                            maze.changeChar(new Coordinates(labelX, labelY), 'X');
+                            maze.setEnd(null);
+                        }
+                    }
+        
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+        
+                    }
+        
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+        
+                    }
+                    
+                });
+
+
                 mazePanel.add(label);
             }
         }
-
         revalidate();
     }
 
@@ -49,7 +113,7 @@ public class MazeFrame extends JFrame implements ActionListener{
     private JLabel makeLabel(char c) {
         JLabel label = new JLabel();
         label.setHorizontalAlignment(JLabel.CENTER);
-
+        
         switch (c) {
         case 'X':
             label.setBackground(Color.BLACK);
@@ -65,6 +129,8 @@ public class MazeFrame extends JFrame implements ActionListener{
             break;
         }
         label.setOpaque(true);
+       
+        
 
         return label;
     }
@@ -90,7 +156,14 @@ public class MazeFrame extends JFrame implements ActionListener{
 
             while (!queue.contains(maze.getEnd())){
 
-                currentCoordinates = queue.removeFirst();
+                try{
+                    currentCoordinates = queue.removeFirst();
+                }catch (NoSuchElementException e){
+                    break;
+                }
+
+
+
                 if (maze.getChar(currentCoordinates) == ' '){
                     changeLabelColor(currentCoordinates.getX(), currentCoordinates.getY(), Color.orange,maze.getWidth() );
                     revalidate();
@@ -144,4 +217,3 @@ public class MazeFrame extends JFrame implements ActionListener{
 }
 
     
-

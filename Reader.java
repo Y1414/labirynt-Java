@@ -9,7 +9,7 @@ public class Reader {
         String line = "";
         ArrayList<char[]> list = new ArrayList<char[]>();
         try {
-            File in = new File("50.txt");
+            File in = new File("100.txt");
             scanner = new Scanner(in);
             while(scanner.hasNextLine()){
                 line = scanner.nextLine();

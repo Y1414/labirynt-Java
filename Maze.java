@@ -5,8 +5,8 @@ import Coordinates_pack.Coordinates;
 
 public class Maze{
     private ArrayList<char[]> mazeData;
-    private Coordinates start = new Coordinates(0, 0);
-    private Coordinates end = new Coordinates(0, 0);
+    private Coordinates start = null;
+    private Coordinates end = null;
     private int width;
     private int height;
 
@@ -22,17 +22,27 @@ public class Maze{
     public int getHeight(){
         return height;
     }
+    public void setStart(Coordinates coordinates){
+        if (coordinates == null)
+            start = null;
+        else
+            start = coordinates;
+    }
+    public void setEnd(Coordinates coordinates){
+        if (coordinates == null)
+            end = null;
+        else
+            end = coordinates;
+    }
 
     public void setStartAndEnd (){
         for (int i=0;i<mazeData.size();i++){
             for(int j=0;j<mazeData.get(i).length;j++){
                 if (mazeData.get(i)[j] == 'P'){
-                    start.setX(j);
-                    start.setY(i);
+                    start = new Coordinates(j, i);
                 }
                 else if (mazeData.get(i)[j] == 'K'){
-                    end.setX(j);
-                    end.setY(i);
+                    end = new Coordinates(j, i);
                 }
             }
         }
@@ -99,7 +109,9 @@ public class Maze{
         return ways;
     }
 
-    
+    public void changeChar(Coordinates coordinates, char c){
+        mazeData.get(coordinates.getY())[coordinates.getX()] = c;
+    }
 
     
     @Override
