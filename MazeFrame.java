@@ -5,20 +5,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayDeque;
-import java.util.NoSuchElementException;
+
 
 public class MazeFrame extends JFrame implements ActionListener{
-    JPanel mazePanel;
-    JPanel buttonsPanel;
-    JButton startButton;
-    int height = 1000;
-    int width = 1000;
-    Maze maze;
+    private JPanel mazePanel;
+    private JPanel buttonsPanel;
+    private JButton startButton;
+    private JButton stopButton;
+    private JButton clearButton;
+    private int height = 1000;
+    private int width = 1000;
+    private Maze maze;
+    private Coordinates mazeSize;
+    private Bfs bfsThread;
+
+
 
     MazeFrame(Maze inMaze){
 
         maze = inMaze;
+        mazeSize = new Coordinates(maze.getWidth(), maze.getHeight());
+        bfsThread = new Bfs(maze, this);
         setSize(width,height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -26,11 +33,12 @@ public class MazeFrame extends JFrame implements ActionListener{
         setLocationRelativeTo(null);
         
         buttonsPanel = new JPanel(new FlowLayout());
-        buttonsPanel.setBackground(Color.gray);
-        startButton = new JButton("start");
-        startButton.setFocusable(false);
-        startButton.addActionListener(this);
-        buttonsPanel.add(startButton);
+        buttonsPanel.setBackground(new Color(220,126,0,255));
+
+        startButton = createButton("Start");
+        stopButton = createButton("Stop");
+        clearButton = createButton("Clear");
+        
 
         add(buttonsPanel, BorderLayout.NORTH);
 
@@ -59,34 +67,36 @@ public class MazeFrame extends JFrame implements ActionListener{
         
                     @Override
                     public void mouseReleased(MouseEvent e) {
-                        //System.out.println("Kliknięto na pole: (" + labelX + ", " + labelY + ")");
+                       
                         Coordinates clickCoordinates = new Coordinates(labelX, labelY);
-                        if (maze.getStart() == null && maze.getChar(clickCoordinates) != 'K'){
-                            changeLabelColor(labelX, labelY, Color.green, maze.getWidth());
-                            maze.changeChar(new Coordinates(labelX, labelY), 'P');
-                            maze.setStart(clickCoordinates);
-                        }
-                        else if (maze.getEnd() == null && maze.getChar(clickCoordinates) != 'P'){
-                            changeLabelColor(labelX, labelY, Color.red, maze.getWidth());
-                            maze.changeChar(new Coordinates(labelX, labelY), 'K');
-                            maze.setEnd(clickCoordinates);
-                        }
+                        if (!bfsThread.isInProgress()){
+                            if (maze.getStart() == null && maze.getChar(clickCoordinates) != 'K'){
+                                changeLabelColor(labelX, labelY, Color.green, maze.getWidth());
+                                maze.changeChar(new Coordinates(labelX, labelY), 'P');
+                                maze.setStart(clickCoordinates);
+                            }
+                            else if (maze.getEnd() == null && maze.getChar(clickCoordinates) != 'P'){
+                                changeLabelColor(labelX, labelY, Color.red, maze.getWidth());
+                                maze.changeChar(new Coordinates(labelX, labelY), 'K');
+                                maze.setEnd(clickCoordinates);
+                            }
 
 
-                        else if (maze.getChar(clickCoordinates) == ' '){
-                            changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
-                            maze.changeChar(new Coordinates(labelX, labelY), 'X');
-                        }else if (maze.getChar(clickCoordinates) == 'X'){
-                            changeLabelColor(labelX, labelY, Color.white, maze.getWidth());
-                            maze.changeChar(new Coordinates(labelX, labelY), ' ');
-                        }else if (maze.getChar(clickCoordinates) == 'P'){
-                            changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
-                            maze.changeChar(new Coordinates(labelX, labelY), 'X');
-                            maze.setStart(null);
-                        }else if (maze.getChar(clickCoordinates) == 'K'){
-                            changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
-                            maze.changeChar(new Coordinates(labelX, labelY), 'X');
-                            maze.setEnd(null);
+                            else if (maze.getChar(clickCoordinates) == ' '){
+                                changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
+                                maze.changeChar(new Coordinates(labelX, labelY), 'X');
+                            }else if (maze.getChar(clickCoordinates) == 'X'){
+                                changeLabelColor(labelX, labelY, Color.white, maze.getWidth());
+                                maze.changeChar(new Coordinates(labelX, labelY), ' ');
+                            }else if (maze.getChar(clickCoordinates) == 'P'){
+                                changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
+                                maze.changeChar(new Coordinates(labelX, labelY), 'X');
+                                maze.setStart(null);
+                            }else if (maze.getChar(clickCoordinates) == 'K'){
+                                changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
+                                maze.changeChar(new Coordinates(labelX, labelY), 'X');
+                                maze.setEnd(null);
+                            }
                         }
                     }
         
@@ -144,74 +154,39 @@ public class MazeFrame extends JFrame implements ActionListener{
     }
 
 
-    public void bfs(){
-        new Thread(() -> {
-            ListOfPiairsOfCoordinates visited = new ListOfPiairsOfCoordinates();
-            ArrayDeque<Coordinates> queue = new ArrayDeque<Coordinates>();
-            
-
-            Coordinates currentCoordinates = new Coordinates(maze.getStart().getX(), maze.getStart().getY()) ;
-            queue.addLast(currentCoordinates);
-            visited.addFirst(new PairOfCordinates(currentCoordinates, null));
-
-            while (!queue.contains(maze.getEnd())){
-
-                try{
-                    currentCoordinates = queue.removeFirst();
-                }catch (NoSuchElementException e){
-                    break;
-                }
-
-
-
-                if (maze.getChar(currentCoordinates) == ' '){
-                    changeLabelColor(currentCoordinates.getX(), currentCoordinates.getY(), Color.orange,maze.getWidth() );
-                    revalidate();
-                }
-            
-                char ways[] = maze.getWays(currentCoordinates); 
-
-                for (int i=0;i<4;i++){
-                    if (ways[i] != 'X'){
-                        if (!visited.contains(currentCoordinates.moveForward(i)) && !queue.contains(currentCoordinates.moveForward(i))){
-                            queue.addLast(currentCoordinates.moveForward(i));
-                            visited.addFirst( new PairOfCordinates(currentCoordinates.moveForward(i), currentCoordinates));
-                        }
-                    }
-                }
-                
-                try {
-                    Thread.sleep(0, 1); 
-                } catch (InterruptedException e) {
-
-                }
-            }
-
-            currentCoordinates = maze.getEnd();
-            while(currentCoordinates != null){
-                if (maze.getChar(currentCoordinates) == ' '){
-                    changeLabelColor(currentCoordinates.getX(), currentCoordinates.getY(), Color.cyan,maze.getWidth() );
-                    revalidate();
-                }
-                currentCoordinates = visited.getPrevoiusCoordinates(currentCoordinates);
-                try {
-                    Thread.sleep(0, 1); 
-                } catch (InterruptedException e) {
-
-                }
-
-            }
-
-
-        }).start();
+    private JButton createButton (String text){
+        JButton button = new JButton(text);
+        button.setFocusable(false);
+        button.addActionListener(this);
+        button.setBackground(new Color(255,160,26,255));
+        button.setBorderPainted(false);
+        buttonsPanel.add(button);
+        return button;
     }
-    
 
 
     @Override
     public void actionPerformed(ActionEvent event) {
         if(event.getSource() == startButton){
-            bfs();
+            if (bfsThread.isStopped()){
+                bfsThread.startThread();
+            }else{
+                bfsThread = new Bfs(maze, this);
+                bfsThread.start();
+            }
+        }
+        if(event.getSource() == stopButton && bfsThread != null && bfsThread.isAlive()){
+            bfsThread.stopThread();
+        }
+        if (event.getSource() == clearButton && bfsThread.isStopped()){
+            bfsThread = new Bfs(maze, this);
+            for (int i=0;i<mazeSize.getY();i++){
+                for (int j=0;j<mazeSize.getX();j++){
+                    if (maze.getChar(new Coordinates(j, i)) == ' '){
+                        changeLabelColor(j, i, Color.white, maze.getWidth());
+                    }
+                }
+            }
         }
     }
 }
