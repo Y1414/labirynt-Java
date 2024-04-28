@@ -24,16 +24,14 @@ public class MazeFrame extends JFrame implements ActionListener{
     private Font defaultFont;
     private int height = 1000;
     private int width = 1000;
-    private Maze maze;
+    private Maze maze = null;
     private Coordinates mazeSize;
     private Bfs bfsThread;
 
 
 
-    MazeFrame(Maze inMaze){
+    MazeFrame(){
 
-        maze = inMaze;
-        mazeSize = new Coordinates(maze.getWidth(), maze.getHeight());
         bfsThread = new Bfs(maze, this);
         setSize(width,height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,12 +52,13 @@ public class MazeFrame extends JFrame implements ActionListener{
 
 
         defaultFont = new Font("Mulish", Font.BOLD, 20);
+        
 
         setIconImage(iconImage);
         
         defaultColor = new Color(255,160,26,255);
         secondaryColor = new Color(220,126,0,255);
-
+        
 
         buttonsPanel = new JPanel(new FlowLayout());
         buttonsPanel.setBackground(secondaryColor);
@@ -68,12 +67,13 @@ public class MazeFrame extends JFrame implements ActionListener{
         textField.setFont(defaultFont);
         textField.setBackground(secondaryColor);
         textField.setBorder(null);
+        textField.setForeground(Color.white);
         
 
         startButton = createButton("Start", "Start BFS algorithm animation");
         stopButton = createButton("Stop", "Pause the animation");
         clearButton = createButton("Clear", "Clear BFS paths");
-        fileButton = createButton("Select File", "Load a maze from file");
+        fileButton = createButton("Load", "Load a maze from file");
         saveButton = createButton("Save", "Save changed maze to file");
 
         buttonsPanel.add(textField);
@@ -85,9 +85,9 @@ public class MazeFrame extends JFrame implements ActionListener{
 
         
         mazePanel = new JPanel();
+        mazePanel.setBackground(secondaryColor);
         add(mazePanel, BorderLayout.CENTER);
-        loadMaze();
-        
+        revalidate();
     }
 
     private void loadMaze(){
@@ -163,6 +163,7 @@ public class MazeFrame extends JFrame implements ActionListener{
             }
         }
         revalidate();
+        textField.setText("");
     }
 
 
@@ -207,6 +208,7 @@ public class MazeFrame extends JFrame implements ActionListener{
         button.setBackground(defaultColor);
         button.setBorderPainted(false);
         button.setFont(defaultFont);
+        button.setForeground(Color.white);
         button.addMouseListener(new MouseListener() {
 
             @Override
@@ -244,40 +246,72 @@ public class MazeFrame extends JFrame implements ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent event) {
+        
+
         if(event.getSource() == startButton){
-            if (bfsThread.isStopped()){
+            if (maze == null){
+                textField.setText("Load a maze first!");
+            }
+            else if (bfsThread.isStopped()){
                 bfsThread.startThread();
             }else if (!bfsThread.isInProgress()){
                 bfsThread = new Bfs(maze, this);
                 bfsThread.start();
             }
+            
         }
-        if(event.getSource() == stopButton && bfsThread != null && bfsThread.isAlive()){
-            bfsThread.stopThread();
+        if(event.getSource() == stopButton){
+            if (maze == null){
+                textField.setText("Load a maze first!");
+            }
+            else if (bfsThread != null && bfsThread.isAlive())
+                bfsThread.stopThread();
+            else
+                textField.setText("Start the animation first!");
         }
-        if (event.getSource() == clearButton && bfsThread.isStopped()){
-            bfsThread = new Bfs(maze, this);
-            for (int i=0;i<mazeSize.getY();i++){
-                for (int j=0;j<mazeSize.getX();j++){
-                    if (maze.getChar(new Coordinates(j, i)) == ' '){
-                        changeLabelColor(j, i, Color.white, maze.getWidth());
+        if (event.getSource() == clearButton){
+            if (maze == null){
+                textField.setText("Load a maze first!");
+            }
+            else if (bfsThread.isStopped()){
+                bfsThread = new Bfs(maze, this);
+                for (int i=0;i<mazeSize.getY();i++){
+                    for (int j=0;j<mazeSize.getX();j++){
+                        if (maze.getChar(new Coordinates(j, i)) == ' '){
+                            changeLabelColor(j, i, Color.white, maze.getWidth());
+                        }
                     }
                 }
+            }else if(bfsThread.isInProgress()){
+                textField.setText("Pause the animation first!");
+            }else{
+                textField.setText("There is nothing to clear!");
             }
         }
-        if (event.getSource() == fileButton && (bfsThread.isStopped() || !bfsThread.isInProgress())){
-            int select = fileChooser.showOpenDialog(null);
-            if (select == JFileChooser.APPROVE_OPTION){
-                bfsThread = new Bfs(maze, this);
-                maze = new Maze(Reader.read(fileChooser.getSelectedFile().getAbsolutePath()));
-                mazeSize = new Coordinates(maze.getWidth(), maze.getHeight());
-                loadMaze();
+        if (event.getSource() == fileButton){
+            
+            if (bfsThread.isStopped() || !bfsThread.isInProgress()){
+            
+                int select = fileChooser.showOpenDialog(null);
+                if (select == JFileChooser.APPROVE_OPTION){
+                    bfsThread = new Bfs(maze, this);
+                    maze = new Maze(Reader.read(fileChooser.getSelectedFile().getAbsolutePath()));
+                    mazeSize = new Coordinates(maze.getWidth(), maze.getHeight());
+                    loadMaze();
+                }
+            }else{
+                textField.setText("Pause the animation first!");
             }
         }
         if (event.getSource() == saveButton){
-            int saveTo = fileChooser.showSaveDialog(null);
-            if (saveTo == JFileChooser.APPROVE_OPTION){
-                Writer.write(fileChooser.getSelectedFile().getAbsolutePath(), maze);
+            if (maze != null){
+                int saveTo = fileChooser.showSaveDialog(null);
+                if (saveTo == JFileChooser.APPROVE_OPTION){
+                    Writer.write(fileChooser.getSelectedFile().getAbsolutePath(), maze);
+                }
+            }
+            else{
+                textField.setText("Load a maze first!");
             }
         }
     }
