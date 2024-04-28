@@ -22,8 +22,8 @@ public class MazeFrame extends JFrame implements ActionListener{
     private Color defaultColor;
     private Color secondaryColor;
     private Font defaultFont;
-    private int height = 1000;
-    private int width = 1000;
+    private int height;
+    private int width;
     private Maze maze = null;
     private Coordinates mazeSize;
     private Bfs bfsThread;
@@ -31,6 +31,14 @@ public class MazeFrame extends JFrame implements ActionListener{
 
 
     MazeFrame(){
+
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int screenWidth = (int) screenSize.getWidth();
+        int screenHeight = (int) screenSize.getHeight();
+
+        width = screenWidth/2;
+        height = (int) ((double)90/100 * screenHeight);
 
         bfsThread = new Bfs(maze, this);
         setSize(width,height);
@@ -76,7 +84,9 @@ public class MazeFrame extends JFrame implements ActionListener{
         fileButton = createButton("Load", "Load a maze from file");
         saveButton = createButton("Save", "Save changed maze to file");
 
-        buttonsPanel.add(textField);
+        //buttonsPanel.add(textField);
+
+        add(textField, BorderLayout.SOUTH);
         textField.setPreferredSize(new Dimension(300,(int)textField.getPreferredSize().getHeight()));
         add(buttonsPanel, BorderLayout.NORTH);
 
