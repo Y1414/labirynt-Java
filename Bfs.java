@@ -12,6 +12,8 @@ public class Bfs extends Thread{
     private Object lock;
     private boolean stopped = false;
     private boolean inProgress = false;
+    private boolean hasFinished = false;
+
 
     public Bfs(Maze maze, MazeFrame frame) {
         this.maze = maze;
@@ -85,6 +87,7 @@ public class Bfs extends Thread{
             }
             stopped = true;
             inProgress = false;
+            hasFinished = true;
         }
     }
     private void bfsWait(){
@@ -112,5 +115,8 @@ public class Bfs extends Thread{
     }
     public boolean isInProgress(){
         return inProgress;
+    }
+    public boolean hasFinished(){
+        return hasFinished;
     }
 }

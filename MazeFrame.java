@@ -8,7 +8,6 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 
-
 public class MazeFrame extends JFrame implements ActionListener{
     private JPanel mazePanel;
     private JPanel buttonsPanel;
@@ -28,11 +27,7 @@ public class MazeFrame extends JFrame implements ActionListener{
     private Coordinates mazeSize;
     private Bfs bfsThread;
 
-
-
     MazeFrame(){
-
-
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = (int) screenSize.getWidth();
         int screenHeight = (int) screenSize.getHeight();
@@ -56,8 +51,6 @@ public class MazeFrame extends JFrame implements ActionListener{
 
         ImageIcon icon = new ImageIcon("images/icon.png");
         Image iconImage = icon.getImage();
-
-
 
         defaultFont = new Font("Mulish", Font.BOLD, 20);
         
@@ -127,7 +120,7 @@ public class MazeFrame extends JFrame implements ActionListener{
                     @Override
                     public void mouseReleased(MouseEvent e) {
                         Coordinates clickCoordinates = new Coordinates(labelX, labelY);
-                        if (!bfsThread.isInProgress()){
+                        if (!bfsThread.isInProgress() && !bfsThread.hasFinished()){
                             if (maze.getStart() == null && maze.getChar(clickCoordinates) != 'K'){
                                 changeLabelColor(labelX, labelY, Color.green, maze.getWidth());
                                 maze.changeChar(new Coordinates(labelX, labelY), 'P');
@@ -153,6 +146,8 @@ public class MazeFrame extends JFrame implements ActionListener{
                                 maze.changeChar(new Coordinates(labelX, labelY), 'X');
                                 maze.setEnd(null);
                             }
+                        }else{
+                            textField.setText("Clear first!");
                         }
                     }
         
@@ -262,6 +257,12 @@ public class MazeFrame extends JFrame implements ActionListener{
             if (maze == null){
                 textField.setText("Load a maze first!");
             }
+            else if (maze.getStart() == null || maze.getEnd() == null){
+                textField.setText("Place start and end first!");
+            }
+            else if (bfsThread.hasFinished()){
+                textField.setText("Clear the maze first!");
+            }
             else if (bfsThread.isStopped()){
                 bfsThread.startThread();
             }else if (!bfsThread.isInProgress()){
@@ -274,7 +275,7 @@ public class MazeFrame extends JFrame implements ActionListener{
             if (maze == null){
                 textField.setText("Load a maze first!");
             }
-            else if (bfsThread != null && bfsThread.isAlive())
+            else if (bfsThread != null && !bfsThread.isStopped())
                 bfsThread.stopThread();
             else
                 textField.setText("Start the animation first!");
