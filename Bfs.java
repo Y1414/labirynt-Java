@@ -37,11 +37,9 @@ public class Bfs extends Thread{
                     break;
                 }
                 try {
-                    if (stopped) {
+                    if (stopped) 
                         lock.wait(); 
-                    } else {
-                        Thread.sleep(0, 1);
-                    }
+
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -62,12 +60,8 @@ public class Bfs extends Thread{
                         }
                     }
                 }
-                
-                try {
-                    Thread.sleep(0, 1); 
-                } catch (InterruptedException e) {
 
-                }
+                bfsWait();
             }
 
             currentCoordinates = maze.getEnd();
@@ -86,17 +80,21 @@ public class Bfs extends Thread{
                     frame.revalidate();
                 }
                 currentCoordinates = visited.getPrevoiusCoordinates(currentCoordinates);
-                try {
-                    Thread.sleep(0, 1); 
-                } catch (InterruptedException e) {
-
-                }
+                bfsWait();
 
             }
             stopped = true;
             inProgress = false;
         }
     }
+    private void bfsWait(){
+        try {
+            Thread.sleep(0, 1); 
+        } catch (InterruptedException e) {
+
+        }
+    }
+
     public void stopThread() {
         stopped = true;
         synchronized (lock) {

@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 
 
 public class MazeFrame extends JFrame implements ActionListener{
@@ -13,6 +15,13 @@ public class MazeFrame extends JFrame implements ActionListener{
     private JButton startButton;
     private JButton stopButton;
     private JButton clearButton;
+    private JButton fileButton;
+    private JButton saveButton;
+    private JFileChooser fileChooser;
+    private JTextField textField;
+    private Color defaultColor;
+    private Color secondaryColor;
+    private Font defaultFont;
     private int height = 1000;
     private int width = 1000;
     private Maze maze;
@@ -31,21 +40,62 @@ public class MazeFrame extends JFrame implements ActionListener{
         setLayout(new BorderLayout());
         setVisible(true);
         setLocationRelativeTo(null);
+
+        try {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Mulish-Regular.ttf")));
+        } catch (IOException | FontFormatException e) {
+            
+        }
+
+        ImageIcon icon = new ImageIcon("images/icon.png");
+        Image iconImage = icon.getImage();
+
+
+
+        defaultFont = new Font("Mulish", Font.BOLD, 20);
+
+        setIconImage(iconImage);
         
+        defaultColor = new Color(255,160,26,255);
+        secondaryColor = new Color(220,126,0,255);
+
+
         buttonsPanel = new JPanel(new FlowLayout());
-        buttonsPanel.setBackground(new Color(220,126,0,255));
+        buttonsPanel.setBackground(secondaryColor);
 
-        startButton = createButton("Start");
-        stopButton = createButton("Stop");
-        clearButton = createButton("Clear");
+        textField = new JTextField("");
+        textField.setFont(defaultFont);
+        textField.setBackground(secondaryColor);
+        textField.setBorder(null);
         
 
+        startButton = createButton("Start", "Start BFS algorithm animation");
+        stopButton = createButton("Stop", "Pause the animation");
+        clearButton = createButton("Clear", "Clear BFS paths");
+        fileButton = createButton("Select File", "Load a maze from file");
+        saveButton = createButton("Save", "Save changed maze to file");
+
+        buttonsPanel.add(textField);
+        textField.setPreferredSize(new Dimension(300,(int)textField.getPreferredSize().getHeight()));
         add(buttonsPanel, BorderLayout.NORTH);
 
+        fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
 
-        mazePanel = new JPanel(new GridLayout(maze.getHeight(), maze.getWidth()));
+        
+        mazePanel = new JPanel();
         add(mazePanel, BorderLayout.CENTER);
+        loadMaze();
+        
+    }
 
+    private void loadMaze(){
+        mazePanel.removeAll();
+        mazePanel.revalidate();
+        mazePanel.repaint();
+        revalidate();
+        mazePanel.setLayout(new GridLayout(maze.getHeight(), maze.getWidth()));
         for (int row = 0; row < maze.getHeight(); row++) {
             for (int col = 0; col < maze.getWidth(); col++) {
                 JLabel label = makeLabel(maze.getChar(new Coordinates(col, row)));
@@ -56,8 +106,7 @@ public class MazeFrame extends JFrame implements ActionListener{
 
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                    
-                        
+                       
                     }
         
                     @Override
@@ -67,7 +116,6 @@ public class MazeFrame extends JFrame implements ActionListener{
         
                     @Override
                     public void mouseReleased(MouseEvent e) {
-                       
                         Coordinates clickCoordinates = new Coordinates(labelX, labelY);
                         if (!bfsThread.isInProgress()){
                             if (maze.getStart() == null && maze.getChar(clickCoordinates) != 'K'){
@@ -80,8 +128,6 @@ public class MazeFrame extends JFrame implements ActionListener{
                                 maze.changeChar(new Coordinates(labelX, labelY), 'K');
                                 maze.setEnd(clickCoordinates);
                             }
-
-
                             else if (maze.getChar(clickCoordinates) == ' '){
                                 changeLabelColor(labelX, labelY, Color.black, maze.getWidth());
                                 maze.changeChar(new Coordinates(labelX, labelY), 'X');
@@ -154,12 +200,43 @@ public class MazeFrame extends JFrame implements ActionListener{
     }
 
 
-    private JButton createButton (String text){
+    private JButton createButton (String text, String description){
         JButton button = new JButton(text);
         button.setFocusable(false);
         button.addActionListener(this);
-        button.setBackground(new Color(255,160,26,255));
+        button.setBackground(defaultColor);
         button.setBorderPainted(false);
+        button.setFont(defaultFont);
+        button.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                textField.setText(description);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                textField.setText("");
+            }
+            
+        });
+
+
         buttonsPanel.add(button);
         return button;
     }
@@ -170,7 +247,7 @@ public class MazeFrame extends JFrame implements ActionListener{
         if(event.getSource() == startButton){
             if (bfsThread.isStopped()){
                 bfsThread.startThread();
-            }else{
+            }else if (!bfsThread.isInProgress()){
                 bfsThread = new Bfs(maze, this);
                 bfsThread.start();
             }
@@ -186,6 +263,21 @@ public class MazeFrame extends JFrame implements ActionListener{
                         changeLabelColor(j, i, Color.white, maze.getWidth());
                     }
                 }
+            }
+        }
+        if (event.getSource() == fileButton && (bfsThread.isStopped() || !bfsThread.isInProgress())){
+            int select = fileChooser.showOpenDialog(null);
+            if (select == JFileChooser.APPROVE_OPTION){
+                bfsThread = new Bfs(maze, this);
+                maze = new Maze(Reader.read(fileChooser.getSelectedFile().getAbsolutePath()));
+                mazeSize = new Coordinates(maze.getWidth(), maze.getHeight());
+                loadMaze();
+            }
+        }
+        if (event.getSource() == saveButton){
+            int saveTo = fileChooser.showSaveDialog(null);
+            if (saveTo == JFileChooser.APPROVE_OPTION){
+                Writer.write(fileChooser.getSelectedFile().getAbsolutePath(), maze);
             }
         }
     }

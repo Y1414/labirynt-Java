@@ -116,8 +116,7 @@ public class Maze{
     
     @Override
     public String toString (){
-        String maze = "Start: " + start.toString() + "\n" +
-                      "End: " + end.toString() + "\n";
+        String maze = "";
         for (int i=0;i<mazeData.size();i++){
             maze += new String( mazeData.get(i)) + "\n" ;
         }
