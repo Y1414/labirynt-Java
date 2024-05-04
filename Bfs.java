@@ -43,8 +43,8 @@ public class Bfs extends Thread{
                     if (stopped) 
                         lock.wait(); 
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException ignored) {
+
                 }
 
 
@@ -75,8 +75,8 @@ public class Bfs extends Thread{
                     } else {
                         Thread.sleep(0, 1);
                     }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException ignored) {
+
                 }
                 if (maze.getChar(currentCoordinates) == ' '){
                     frame.changeLabelColor(currentCoordinates.getX(), currentCoordinates.getY(), Color.cyan,maze.getWidth() );
@@ -94,7 +94,7 @@ public class Bfs extends Thread{
     private void bfsWait(){
         try {
             Thread.sleep(0, 1); 
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
 
         }
     }

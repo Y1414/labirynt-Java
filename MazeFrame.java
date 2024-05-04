@@ -43,7 +43,7 @@ public class MazeFrame extends JFrame implements ActionListener{
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("fonts/Mulish-Regular.ttf")));
-        } catch (IOException | FontFormatException e) {
+        } catch (IOException | FontFormatException ignored) {
             
         }
 

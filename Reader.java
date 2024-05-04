@@ -30,8 +30,7 @@ public class Reader {
             }
         }
         else if (filename.endsWith(".bin")){
-            try {
-                RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "r");
+            try (RandomAccessFile randomAccessFile = new RandomAccessFile(filename, "r")) {
                 int fileID = Integer.reverseBytes(randomAccessFile.readInt());
                 if (fileID != 0x52524243){
                     System.err.println("Unknown file ID");
@@ -46,7 +45,7 @@ public class Reader {
                 int exitY = Short.reverseBytes(randomAccessFile.readShort());
                 randomAccessFile.skipBytes(12);
                 int counter = Integer.reverseBytes(randomAccessFile.readInt());
-                int solutionOffset = Integer.reverseBytes(randomAccessFile.readInt());
+                randomAccessFile.readInt();
                 char separator = (char) randomAccessFile.read();
                 char wall = (char) randomAccessFile.read();
                 char path = (char) randomAccessFile.read();

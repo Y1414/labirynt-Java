@@ -3,9 +3,8 @@ import java.util.ArrayList;
 
 public class Writer {
     public static void write(String filename, Maze maze) {
-        RandomAccessFile file;
-        try {
-            file = new RandomAccessFile(filename, "rw");
+
+        try (RandomAccessFile file = new RandomAccessFile(filename, "rw")){
             file.setLength(0);
             if (filename.endsWith(".txt")) {
                 file.writeBytes(maze.toString());
