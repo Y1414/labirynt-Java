@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import Coordinates_pack.Coordinates;
 
 public class Maze{
-    private ArrayList<char[]> mazeData;
+    private final ArrayList<char[]> mazeData;
     private Coordinates start = null;
     private Coordinates end = null;
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
 
     public Maze(ArrayList<char[]> list){
         this.mazeData = list;
         setStartAndEnd();
-        width = mazeData.get(0).length;
+        width = mazeData.getFirst().length;
         height = mazeData.size();
     }
     public int getWidth(){
@@ -23,16 +23,10 @@ public class Maze{
         return height;
     }
     public void setStart(Coordinates coordinates){
-        if (coordinates == null)
-            start = null;
-        else
-            start = coordinates;
+        start = coordinates;
     }
     public void setEnd(Coordinates coordinates){
-        if (coordinates == null)
-            end = null;
-        else
-            end = coordinates;
+        end = coordinates;
     }
 
     public void setStartAndEnd (){
@@ -75,7 +69,7 @@ public class Maze{
         Coordinates newCoordinates = new Coordinates(coordinates.getX(), coordinates.getY());
         newCoordinates.addCoordinates(new Coordinates(1, 0));
         
-        if (newCoordinates.getX() >= 0 && newCoordinates.getX() < mazeData.get(0).length) {
+        if (newCoordinates.getX() >= 0 && newCoordinates.getX() < mazeData.getFirst().length) {
             return getChar(newCoordinates);
         } else {
             return 'X';
@@ -97,7 +91,7 @@ public class Maze{
         Coordinates newCoordinates = new Coordinates(coordinates.getX(), coordinates.getY());
         newCoordinates.addCoordinates(new Coordinates(-1, 0));
         
-        if (newCoordinates.getX() >= 0 && newCoordinates.getX() < mazeData.get(0).length) {
+        if (newCoordinates.getX() >= 0 && newCoordinates.getX() < mazeData.getFirst().length) {
             return getChar(newCoordinates);
         } else {
             return 'X';
@@ -105,9 +99,13 @@ public class Maze{
     }
     
     public char[] getWays(Coordinates coordinates){
-        char[] ways = {checkUp(coordinates), checkRight(coordinates), checkDown(coordinates), checkLeft(coordinates)};
-        return ways;
+        return new char[]{checkUp(coordinates), checkRight(coordinates), checkDown(coordinates), checkLeft(coordinates)};
     }
+
+    public ArrayList<char[]> getMazeData() {
+        return mazeData;
+    }
+
 
     public void changeChar(Coordinates coordinates, char c){
         mazeData.get(coordinates.getY())[coordinates.getX()] = c;
@@ -116,12 +114,12 @@ public class Maze{
     
     @Override
     public String toString (){
-        String maze = "";
-        for (int i=0;i<mazeData.size();i++){
-            maze += new String( mazeData.get(i)) + "\n" ;
+        StringBuilder maze = new StringBuilder();
+        for (char[] mazeDatum : mazeData) {
+            maze.append(new String(mazeDatum)).append("\n");
         }
 
-        return maze;
+        return maze.toString();
     }
 
 }

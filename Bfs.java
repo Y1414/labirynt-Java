@@ -7,25 +7,26 @@ import Coordinates_pack.ListOfPiairsOfCoordinates;
 import Coordinates_pack.PairOfCordinates;
 
 public class Bfs extends Thread{
-    private Maze maze;
-    private MazeFrame frame;
-    private Object lock;
+    private final Maze maze;
+    private final MazeFrame frame;
+    private final Object lock;
     private boolean stopped = false;
     private boolean inProgress = false;
     private boolean hasFinished = false;
-
+    
 
     public Bfs(Maze maze, MazeFrame frame) {
         this.maze = maze;
         this.frame = frame;
         lock = new Object();
     }
+    
     @Override
     public void run(){
         synchronized (lock){
             inProgress = true;
             ListOfPiairsOfCoordinates visited = new ListOfPiairsOfCoordinates();
-            ArrayDeque<Coordinates> queue = new ArrayDeque<Coordinates>();
+            ArrayDeque<Coordinates> queue = new ArrayDeque<>();
             
 
             Coordinates currentCoordinates = new Coordinates(maze.getStart().getX(), maze.getStart().getY()) ;
@@ -52,7 +53,7 @@ public class Bfs extends Thread{
                     frame.revalidate();
                 }
             
-                char ways[] = maze.getWays(currentCoordinates); 
+                char[] ways = maze.getWays(currentCoordinates);
 
                 for (int i=0;i<4;i++){
                     if (ways[i] != 'X'){
@@ -65,7 +66,7 @@ public class Bfs extends Thread{
 
                 bfsWait();
             }
-
+            
             currentCoordinates = maze.getEnd();
             while(currentCoordinates != null){
                 try {

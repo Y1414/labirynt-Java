@@ -9,34 +9,32 @@ import java.io.File;
 import java.io.IOException;
 
 public class MazeFrame extends JFrame implements ActionListener{
-    private JPanel mazePanel;
-    private JPanel buttonsPanel;
-    private JButton startButton;
-    private JButton stopButton;
-    private JButton clearButton;
-    private JButton fileButton;
-    private JButton saveButton;
-    private JFileChooser fileChooser;
-    private JTextField textField;
-    private Color defaultColor;
-    private Color secondaryColor;
-    private Font defaultFont;
-    private int height;
-    private int width;
+    private final JPanel mazePanel;
+    private final JPanel buttonsPanel;
+    private final JButton startButton;
+    private final JButton stopButton;
+    private final JButton clearButton;
+    private final JButton fileButton;
+    private final JButton saveButton;
+    private final JFileChooser fileChooser;
+    private final JTextField textField;
+    private final Color defaultColor;
+    private final Font defaultFont;
     private Maze maze = null;
     private Coordinates mazeSize;
     private Bfs bfsThread;
+    
 
     MazeFrame(){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = (int) screenSize.getWidth();
         int screenHeight = (int) screenSize.getHeight();
 
-        width = screenWidth/2;
-        height = (int) ((double)90/100 * screenHeight);
+        int width = screenWidth / 2;
+        int height = (int) ((double) 90 / 100 * screenHeight);
 
         bfsThread = new Bfs(maze, this);
-        setSize(width,height);
+        setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setVisible(true);
@@ -58,7 +56,7 @@ public class MazeFrame extends JFrame implements ActionListener{
         setIconImage(iconImage);
         
         defaultColor = new Color(255,160,26,255);
-        secondaryColor = new Color(220,126,0,255);
+        Color secondaryColor = new Color(220, 126, 0, 255);
         
 
         buttonsPanel = new JPanel(new FlowLayout());
@@ -191,16 +189,14 @@ public class MazeFrame extends JFrame implements ActionListener{
             break;
         }
         label.setOpaque(true);
-       
         
-
         return label;
     }
     public void changeLabelColor(int x, int y, Color color, int mazeWidth) {
         int index = y * mazeWidth + x;
         Component component = mazePanel.getComponent(index);
-        if (component instanceof JLabel) {
-            JLabel label = (JLabel) component;
+
+        if (component instanceof JLabel label) {
             label.setBackground(color);
         }
     }
