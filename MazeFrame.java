@@ -1,5 +1,7 @@
 import javax.swing.*;
 import Coordinates_pack.*;
+import Exceptions.InvalidFileExtensionException;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +25,7 @@ public class MazeFrame extends JFrame implements ActionListener{
     private Maze maze = null;
     private Coordinates mazeSize;
     private Bfs bfsThread;
+    private boolean fileMenuOpened = false;
     
 
     MazeFrame(){
@@ -234,7 +237,10 @@ public class MazeFrame extends JFrame implements ActionListener{
 
             @Override
             public void mouseExited(MouseEvent e) {
-                textField.setText("");
+                if (!fileMenuOpened) {
+                    textField.setText("");
+                }
+                fileMenuOpened = false;
             }
             
         });
@@ -300,12 +306,22 @@ public class MazeFrame extends JFrame implements ActionListener{
             if (bfsThread.isStopped() || !bfsThread.isInProgress()){
             
                 int select = fileChooser.showOpenDialog(null);
+                fileMenuOpened = true;
+
                 if (select == JFileChooser.APPROVE_OPTION){
                     bfsThread = new Bfs(maze, this);
-                    maze = new Maze(Reader.read(fileChooser.getSelectedFile().getAbsolutePath()));
-                    mazeSize = new Coordinates(maze.getWidth(), maze.getHeight());
-                    loadMaze();
+                    try {
+                        maze = new Maze(Reader.read(fileChooser.getSelectedFile().getAbsolutePath()));
+                        mazeSize = new Coordinates(maze.getWidth(), maze.getHeight());
+                        loadMaze();
+                        textField.setText("File loaded");
+                    }catch (InvalidFileExtensionException e){
+                        textField.setText("Unknown file format!");
+                        revalidate();
+                    }
+
                 }
+
             }else{
                 textField.setText("Pause the animation first!");
             }
@@ -313,8 +329,15 @@ public class MazeFrame extends JFrame implements ActionListener{
         if (event.getSource() == saveButton){
             if (maze != null){
                 int saveTo = fileChooser.showSaveDialog(null);
+                fileMenuOpened = true;
                 if (saveTo == JFileChooser.APPROVE_OPTION){
-                    Writer.write(fileChooser.getSelectedFile().getAbsolutePath(), maze);
+
+                    try {
+                        Writer.write(fileChooser.getSelectedFile().getAbsolutePath(), maze);
+                        textField.setText("File saved");
+                    } catch (InvalidFileExtensionException e) {
+                        textField.setText("Unknown file extension!");
+                    }
                 }
             }
             else{

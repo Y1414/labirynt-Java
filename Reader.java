@@ -1,4 +1,6 @@
 
+import Exceptions.InvalidFileExtensionException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Reader {
-    public static ArrayList<char[]> read(String filename) {
+    public static ArrayList<char[]> read(String filename) throws InvalidFileExtensionException {
         ArrayList<char[]> list = new ArrayList<>();
         if (filename.endsWith(".txt")) {
             Scanner scanner = null;
@@ -83,6 +85,8 @@ public class Reader {
                 System.exit(1);
             }
 
+        }else {
+            throw new InvalidFileExtensionException();
         }
 
         return list;

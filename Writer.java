@@ -1,8 +1,13 @@
+import Exceptions.InvalidFileExtensionException;
+
 import java.io.*;
 import java.util.ArrayList;
 
 public class Writer {
-    public static void write(String filename, Maze maze) {
+    public static void write(String filename, Maze maze) throws InvalidFileExtensionException {
+        if (!(filename.endsWith(".txt") || filename.endsWith(".bin"))) {
+            throw new InvalidFileExtensionException();
+        }
 
         try (RandomAccessFile file = new RandomAccessFile(filename, "rw")){
             file.setLength(0);
@@ -65,9 +70,8 @@ public class Writer {
                 file.write(count);
                 file.seek(29);
                 file.writeInt(Integer.reverseBytes(counter));
-
-
             }
+
         }catch (IOException e){
             System.exit(1);
         }

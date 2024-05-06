@@ -1,6 +1,5 @@
 import java.util.ArrayDeque;
 import java.util.NoSuchElementException;
-
 import java.awt.*;
 import Coordinates_pack.Coordinates;
 import Coordinates_pack.ListOfPiairsOfCoordinates;
