@@ -52,6 +52,7 @@ public class WallFollower extends AlgorithmThread{
                 return;
             }
         }
+        direction = -1;
     }
 
     private boolean noWay(){
@@ -80,7 +81,7 @@ public class WallFollower extends AlgorithmThread{
                     if (stopped)
                         lock.wait();
                 } catch (InterruptedException ignored) {
-
+                System.out.println(current);
                 }
                 char[] ways = maze.getWays(current);
                 if (countWalls(ways) == 3 && !current.equals(maze.getStart())){
@@ -91,6 +92,9 @@ public class WallFollower extends AlgorithmThread{
 
 
                 chooseDirection();
+                if (direction == -1){
+                    break;
+                }
                 current = current.moveForward(direction);
 
                 if (!visited.contains(current)  && !current.equals(maze.getEnd()))

@@ -51,11 +51,12 @@ public class Dfs extends AlgorithmThread{
                 }
                 if (!hasChildren){
                     stack.removeFirst();
-                }
-                try {
-                    Thread.sleep(10,0);
-                } catch (InterruptedException ignored) {
+                }else {
+                    try {
+                        Thread.sleep(10, 0);
+                    } catch (InterruptedException ignored) {
 
+                    }
                 }
 
             }

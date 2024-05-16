@@ -45,7 +45,7 @@ public class MazeFrame extends JFrame implements ActionListener{
         int screenWidth = (int) screenSize.getWidth();
         int screenHeight = (int) screenSize.getHeight();
 
-        int width = screenWidth / 2;
+        int width = (int) ((double)6/10 * screenWidth);
         int height = (int) ((double) 90 / 100 * screenHeight);
 
         algorithms = new ArrayList<>();
