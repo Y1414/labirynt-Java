@@ -22,7 +22,7 @@ public class MazeFrame extends JFrame implements ActionListener{
     private final JPanel mazePanel;
     private final JButton bfsButton;
     private  final  JButton dfsButton;
-    private final JButton wallFollowerButton;
+    private final JButton bruteForceButton;
     private final JButton startButton;
     private final JButton stopButton;
     private final JButton clearButton;
@@ -108,9 +108,9 @@ public class MazeFrame extends JFrame implements ActionListener{
         dfsButton = createButton("DFS", "Depth First Search", algorithmChooserPanel);
         dfsButton.setPreferredSize(new Dimension((int)algorithmChooserPanel.getPreferredSize().getWidth(), 40));
         algorithms.add(new Algorithm(dfsButton, new Dfs(maze, this)));
-        wallFollowerButton = createButton("<html><center>Wall<br>Follower</center></html>","Wall follower method", algorithmChooserPanel);
-        wallFollowerButton.setPreferredSize(new Dimension((int)algorithmChooserPanel.getPreferredSize().getWidth(), 60));
-        algorithms.add(new Algorithm(wallFollowerButton, new WallFollower(maze, this)));
+        bruteForceButton = createButton("<html><center>Brute<br>Force</center></html>","Brute force method", algorithmChooserPanel);
+        bruteForceButton.setPreferredSize(new Dimension((int)algorithmChooserPanel.getPreferredSize().getWidth(), 60));
+        algorithms.add(new Algorithm(bruteForceButton, new BruteForce(maze, this)));
         add(textField, BorderLayout.SOUTH);
         textField.setPreferredSize(new Dimension(300,(int)textField.getPreferredSize().getHeight()));
         add(buttonsPanel, BorderLayout.NORTH);
@@ -418,8 +418,8 @@ public class MazeFrame extends JFrame implements ActionListener{
         if (event.getSource() == dfsButton){
             setAlgorithmButtonActive(dfsButton);
         }
-        if (event.getSource() == wallFollowerButton){
-            setAlgorithmButtonActive(wallFollowerButton);
+        if (event.getSource() == bruteForceButton){
+            setAlgorithmButtonActive(bruteForceButton);
         }
     }
 }
