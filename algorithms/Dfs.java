@@ -62,6 +62,12 @@ public class Dfs extends AlgorithmThread{
             }
 
             for(Coordinates current : stack){
+                try {
+                    if (stopped)
+                        lock.wait();
+                } catch (InterruptedException ignored) {
+
+                }
                 if (maze.getChar(current) == ' ') {
                     frame.changeLabelColor(current.getX(), current.getY(), Color.cyan, maze.getWidth());
                     frame.revalidate();

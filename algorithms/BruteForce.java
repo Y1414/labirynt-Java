@@ -3,7 +3,6 @@ package algorithms;
 import Coordinates_pack.Coordinates;
 import maze.Maze;
 import maze.MazeFrame;
-
 import java.awt.*;
 import java.util.ArrayList;
 
